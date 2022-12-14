@@ -83,7 +83,7 @@ func uploadPlatform(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryProvid
 	opts.Shasum = hex.EncodeToString(hasher.Sum(nil))
 	platform, err := tfc.RegistryProviderPlatforms.Create(ctx, vid, opts)
 	if err != nil {
-		return err
+		return fmt.Errorf("uploadPlatform: %w", err)
 	}
 	if platform.ProviderBinaryUploaded {
 		return fmt.Errorf("binary already uploaded")
@@ -97,7 +97,7 @@ func upload(_ context.Context, url, path string) error {
 	hc, _ := http.NewRequest(http.MethodPut, url, fh)
 	resp, err := http.DefaultClient.Do(hc)
 	if err != nil {
-		return err
+		return fmt.Errorf("upload(%s): %s", url, err)
 	}
 	if resp.StatusCode != 200 {
 		body, _ := io.ReadAll(resp.Body)

@@ -44,7 +44,7 @@ var privateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		if err := provider.PublishPrivateProvider(ctx, tfc, org, ns, keyID, path); err != nil {
-			fmt.Printf("error: %w", err)
+			fmt.Printf("%s", err)
 			os.Exit(1)
 		}
 	},
