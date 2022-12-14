@@ -41,10 +41,11 @@ var privateCmd = &cobra.Command{
 		tfc, err := tfe.NewClient(cfg)
 		if err != nil {
 			fmt.Printf("failed: %w", err)
-			return
+			os.Exit(1)
 		}
 		if err := provider.PublishPrivateProvider(ctx, tfc, org, ns, keyID, path); err != nil {
 			fmt.Printf("error: %w", err)
+			os.Exit(1)
 		}
 	},
 }
