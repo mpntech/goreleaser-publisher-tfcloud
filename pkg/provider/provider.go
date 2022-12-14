@@ -21,7 +21,9 @@ func retryer() *retry.RetryLogic {
 }
 
 func PublishPrivateProvider(ctx context.Context, tfc *tfe.Client, org, namespace, keyID, path string) error {
+	fmt.Println(path)
 	providerFilename, providerName, providerVersion, providerOS, providerArch := extractMetadataFromPath(path)
+	fmt.Println(providerFilename)
 	vid := tfe.RegistryProviderVersionID{
 		RegistryProviderID: tfe.RegistryProviderID{
 			OrganizationName: org,
@@ -62,7 +64,7 @@ func PublishPrivateProvider(ctx context.Context, tfc *tfe.Client, org, namespace
 }
 
 func extractMetadataFromPath(filePath string) (file, provider, version, os, arch string) {
-	re := regexp.MustCompile("terraform-provider-([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)(-[a-zA-Z]+)?_?([a-zA-Z0-9]+)?_?([a-zA-Z0-9]+)?.?[a-zA-Z]*")
+	re := regexp.MustCompile("terraform-provider-([a-zA-Z0-9]+)_([a-zA-Z0-9.]+)(-[a-zA-Z0-9.]+)?_?([a-zA-Z0-9]+)?_?([a-zA-Z0-9]+)?.?[a-zA-Z]*")
 	found := re.FindAllStringSubmatch(filePath, 1)
 	file = found[0][0]
 	provider = found[0][1]
@@ -81,6 +83,8 @@ func uploadPlatform(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryProvid
 	s, err := os.ReadFile(path)
 	hasher.Write(s)
 	opts.Shasum = hex.EncodeToString(hasher.Sum(nil))
+	fmt.Printf("%v", vid)
+	fmt.Printf("%v", opts)
 	platform, err := tfc.RegistryProviderPlatforms.Create(ctx, vid, opts)
 	if err != nil {
 		return fmt.Errorf("uploadPlatform: %w", err)

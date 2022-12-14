@@ -25,6 +25,15 @@ func Test_extractMetadataFromPath(t *testing.T) {
 			"amd64",
 		},
 		{
+			"linux amd64 dot",
+			args{"./terraform-provider-okta_3.39.0-mpn7_linux_amd64.zip"},
+			"terraform-provider-okta_3.39.0-mpn7_linux_amd64.zip",
+			"okta",
+			"3.39.0-mpn7",
+			"linux",
+			"amd64",
+		},
+		{
 			"fullpath linux amd64",
 			args{"/mnt/foo/bar baz/terraform-provider-okta_3.39.0-mpn_linux_amd64.zip"},
 			"terraform-provider-okta_3.39.0-mpn_linux_amd64.zip",
