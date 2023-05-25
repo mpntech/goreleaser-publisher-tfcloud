@@ -17,7 +17,7 @@ import (
 )
 
 func retryer() *retry.RetryLogic {
-	rl, _ := retry.NewRetryLogic(retry.WithExponentialBackoff(time.Second, time.Second*10, 1.2), retry.WithMaxAttempts(15))
+	rl, _ := retry.NewRetryLogic(retry.WithExponentialBackoff(time.Second, time.Second*10, 1.2), retry.WithMaxAttempts(5))
 	return rl
 }
 
