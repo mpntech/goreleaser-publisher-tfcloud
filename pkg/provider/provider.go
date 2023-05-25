@@ -5,14 +5,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/goblain/go-retry"
-	"github.com/hashicorp/go-tfe"
 	"io"
 	"net/http"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/goblain/go-retry"
+	"github.com/hashicorp/go-tfe"
 )
 
 func retryer() *retry.RetryLogic {
@@ -115,7 +116,7 @@ func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryPr
 		opts := &tfe.RegistryProviderVersionListOptions{}
 		vl, err := tfc.RegistryProviderVersions.List(ctx, vid.RegistryProviderID, opts)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("list err %v: %w", vid.RegistryProviderID, err)
 		}
 		for _, v := range vl.Items {
 			if v.Version == vid.Version {
