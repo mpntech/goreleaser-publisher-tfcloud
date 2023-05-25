@@ -35,9 +35,13 @@ func PublishPrivateProvider(ctx context.Context, tfc *tfe.Client, org, namespace
 		Version: providerVersion,
 	}
 	vi, err := retryer().ExecuteFuncI(func() (interface{}, error) {
+		err := ensureRegistryProvider(ctx, tfc, org, providerName)
+		if err != nil {
+			return nil, fmt.Errorf("ensureRegistryProvider: %w", err)
+		}
 		v, err := getOrCreateVersion(ctx, tfc, vid, keyID)
 		if err != nil {
-			return nil, fmt.Errorf("version: %w", err)
+			return nil, fmt.Errorf("getOrCreateVersion: %w", err)
 		}
 		if !strings.HasSuffix(path, "SHA256SUMS") && !strings.HasSuffix(path, "SHA256SUMS.sig") {
 			if !v.ShasumsUploaded || !v.ShasumsSigUploaded {
@@ -111,14 +115,29 @@ func upload(_ context.Context, url, path string) error {
 	return nil
 }
 
+func ensureRegistryProvider(ctx context.Context, tfc *tfe.Client, org, name string) error {
+	list, err := tfc.RegistryProviders.List(ctx, org, &tfe.RegistryProviderListOptions{})
+	if err != nil {
+		return fmt.Errorf("provider list err %s: %w", org, err)
+	}
+	for _, item := range list.Items {
+		if item.Name == name {
+			return nil
+		}
+	}
+	_, err = tfc.RegistryProviders.Create(ctx, org, tfe.RegistryProviderCreateOptions{
+		RegistryName: tfe.PrivateRegistry,
+		Namespace:    org,
+		Name:         name,
+	})
+	return err
+}
+
 func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryProviderVersionID, keyID string) (*tfe.RegistryProviderVersion, error) {
 	for {
 		opts := &tfe.RegistryProviderVersionListOptions{}
 		vl, err := tfc.RegistryProviderVersions.List(ctx, vid.RegistryProviderID, opts)
 		if err != nil {
-			if err == tfe.ErrResourceNotFound {
-				break
-			}
 			return nil, fmt.Errorf("list err %v: %w", vid.RegistryProviderID, err)
 		}
 		for _, v := range vl.Items {
