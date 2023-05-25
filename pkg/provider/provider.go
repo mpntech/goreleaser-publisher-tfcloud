@@ -115,7 +115,10 @@ func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryPr
 	for {
 		opts := &tfe.RegistryProviderVersionListOptions{}
 		vl, err := tfc.RegistryProviderVersions.List(ctx, vid.RegistryProviderID, opts)
-		if err != nil && err != tfe.ErrResourceNotFound {
+		if err != nil {
+			if err == tfe.ErrResourceNotFound {
+				break
+			}
 			return nil, fmt.Errorf("list err %v: %w", vid.RegistryProviderID, err)
 		}
 		for _, v := range vl.Items {
