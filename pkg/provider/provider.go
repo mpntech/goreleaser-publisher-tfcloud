@@ -145,7 +145,7 @@ func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryPr
 				return v, nil
 			}
 		}
-		if vl.CurrentPage == vl.TotalPages {
+		if vl.CurrentPage >= vl.TotalPages {
 			break
 		}
 		opts.PageNumber = vl.NextPage
