@@ -37,8 +37,8 @@ checksum:
 #      - '${artifact}'
 release:
   github:
-    owner: tradeix
-    name: gorelease-publisher-tfcloud
+    owner: mpntech
+    name: goreleaser-publisher-tfcloud
   draft: true
 changelog:
   skip: true
