@@ -135,24 +135,26 @@ func ensureRegistryProvider(ctx context.Context, tfc *tfe.Client, org, name stri
 }
 
 func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryProviderVersionID, keyID string) (*tfe.RegistryProviderVersion, error) {
-	for {
-		opts := &tfe.RegistryProviderVersionListOptions{}
-		vl, err := tfc.RegistryProviderVersions.List(ctx, vid.RegistryProviderID, opts)
-		if err != nil {
-			return nil, fmt.Errorf("list err %v: %w", vid.RegistryProviderID, err)
-		}
-		for _, v := range vl.Items {
-			if v.Version == vid.Version {
-				return v, nil
-			}
-		}
-		if vl.NextPage >= opts.PageNumber {
-			opts.PageNumber = vl.NextPage
-			time.Sleep(time.Second)
-		} else {
-			break
+	// for {
+	opts := &tfe.RegistryProviderVersionListOptions{}
+	vl, err := tfc.RegistryProviderVersions.List(ctx, vid.RegistryProviderID, opts)
+	if err != nil {
+		return nil, fmt.Errorf("list err %v: %w", vid.RegistryProviderID, err)
+	}
+	for _, v := range vl.Items {
+		if v.Version == vid.Version {
+			return v, nil
 		}
 	}
+	// 	if vl.NextPage > opts.PageNumber {
+	// 		opts.PageNumber = vl.NextPage
+	// 		continue
+	// 		time.Sleep(time.Second)
+	// 	} else {
+	// 		break
+	// 	}
+	// 	break
+	// }
 
 	v, err := tfc.RegistryProviderVersions.Create(ctx, vid.RegistryProviderID, tfe.RegistryProviderVersionCreateOptions{
 		Version: vid.Version,
