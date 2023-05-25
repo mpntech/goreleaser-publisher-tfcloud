@@ -17,7 +17,7 @@ import (
 )
 
 func retryer() *retry.RetryLogic {
-	rl, _ := retry.NewRetryLogic(retry.WithExponentialBackoff(time.Second, time.Second*10, 1.2))
+	rl, _ := retry.NewRetryLogic(retry.WithExponentialBackoff(time.Second, time.Second*10, 1.2), retry.WithMaxAttempts(15))
 	return rl
 }
 
@@ -34,11 +34,12 @@ func PublishPrivateProvider(ctx context.Context, tfc *tfe.Client, org, namespace
 		},
 		Version: providerVersion,
 	}
+
+	if err := ensureRegistryProvider(ctx, tfc, org, providerName); err != nil {
+		return fmt.Errorf("ensureRegistryProvider: %w", err)
+	}
+
 	vi, err := retryer().ExecuteFuncI(func() (interface{}, error) {
-		err := ensureRegistryProvider(ctx, tfc, org, providerName)
-		if err != nil {
-			return nil, fmt.Errorf("ensureRegistryProvider: %w", err)
-		}
 		v, err := getOrCreateVersion(ctx, tfc, vid, keyID)
 		if err != nil {
 			return nil, fmt.Errorf("getOrCreateVersion: %w", err)
@@ -145,10 +146,12 @@ func getOrCreateVersion(ctx context.Context, tfc *tfe.Client, vid tfe.RegistryPr
 				return v, nil
 			}
 		}
-		if vl.CurrentPage >= vl.TotalPages {
+		if vl.NextPage >= opts.PageNumber {
+			opts.PageNumber = vl.NextPage
+			time.Sleep(time.Second)
+		} else {
 			break
 		}
-		opts.PageNumber = vl.NextPage
 	}
 
 	v, err := tfc.RegistryProviderVersions.Create(ctx, vid.RegistryProviderID, tfe.RegistryProviderVersionCreateOptions{
