@@ -10,10 +10,7 @@ builds:
     ldflags:
       - '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}'
     goos:
-      - freebsd
-      - windows
       - linux
-      - darwin
     goarch:
       - amd64
     binary: '{{ .ProjectName }}_v{{ .Version }}'
@@ -39,6 +36,6 @@ release:
   github:
     owner: mpntech
     name: goreleaser-publisher-tfcloud
-  draft: true
+  draft: false
 changelog:
-  skip: true
+  skip: false
