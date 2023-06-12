@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/goblain/go-retry v0.0.0-20221205140251-4ffabb57e5da
-	github.com/hashicorp/go-tfe v1.25.1
+	github.com/hashicorp/go-tfe v1.27.0
 	github.com/spf13/cobra v1.6.1
 )
 
